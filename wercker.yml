@@ -11,6 +11,12 @@ build:
     - script:
         name: clean up wercker cache dir
         code: |
+          if [ "-d $USER/.gradle" ]; then
+            if [ "$(ls -A $USER/.gradle)" ]; then
+              echo "The default cache dir $USER/.gradle is not Empty. Delete it."
+              rm -rf $USER/.gradle
+            fi
+          fi
           if [ "$(ls -A $WERCKER_CACHE_DIR)" ]; then
             echo "The wercker cache dir $WERCKER_CACHE_DIR is not Empty. Delete it."
             rm -rf $WERCKER_CACHE_DIR/*
@@ -25,8 +31,8 @@ build:
           export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded
           ./gradlew --build-cache --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project build
 
-# defining the CacheDir pipeline
-CacheDir:
+# defining the WerckerCacheDir pipeline
+WerckerCacheDir:
   steps:
     - script:
       name: gradlew bootRun using wercker cache dir
@@ -36,7 +42,7 @@ CacheDir:
         echo "export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded"
         export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded
 
-        echo "Running 'gradlew bootRun' using wercker cache dir, kill the process when seeing the matching string from the process output. Pring out the command execution time."
+        echo "Run 'gradlew bootRun' using wercker cache dir. Kill the process when seeing the matching string from the process output. Print out the command execution time."
 
         command="./gradlew --build-cache --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun"
         log="prog.log"
@@ -57,18 +63,19 @@ CacheDir:
           fi
         done
         end_time=`date +%s`
-        echo "The gradlew command execution time was `expr $end_time - $start_time`s."
+        echo "The gradlew bootRun command execution time was `expr $end_time - $start_time`s."
 
-# defining the NoCacheDir pipeline
-NoCacheDir:
+# defining the DefaultCacheDir pipeline
+DefaultCacheDir:
   steps:
     - script:
-      name: gradlew bootRun without cache dir
+      name: gradlew bootRun using default cache dir
       code: |
         start_time=`date +%s`
 
-        echo "Running 'gradlew bootRun' with default cache dir, kill the process when seeing the matching string from the process output. Print out the command execution time."
+        echo "Run 'gradlew bootRun' with default cache dir. Kill the process when seeing the matching string from the process output. Print out the command execution time."
 
+        export GRADLE_USER_HOME=
         command="./gradlew --full-stacktrace bootRun"
 
         echo $command
@@ -90,5 +97,5 @@ NoCacheDir:
           fi
         done
         end_time=`date +%s`
-        echo "The gradlew command execution time was `expr $end_time - $start_time`s."
+        echo "The gradlew bootRun command execution time was `expr $end_time - $start_time`s."
 

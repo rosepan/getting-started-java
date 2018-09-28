@@ -1,6 +1,6 @@
 # getting-started-java
 
-A sample application in Java for wercker. This is forked from the application git clone https://github.com/wercker/getting-started-java.git
+An application in Java for wercker showing the usage of a wercker environment variable WERCKER_CACHE_DIR. In this application, the WERCKER_CACHE_DIR env var is used by the gradlew commands.
 
 This application uses the `openjdk:8` container obtained from the [Docker Hub](https://registry.hub.docker.com/_/openjdk/)
 
@@ -17,19 +17,24 @@ then build using:
 ```
 wercker build
 ```
+This command downloads the gradle artifacts to the directory specified by the wercker env var WERCKER_CACHE_DIR.
 
 ## Run
-To run the application using cache dir, simply execute:
+To run the application using wercker cache dir, simply execute:
 
 ```
-wercker dev --pipeline CacheDir
+wercker dev --pipeline WerckerCacheDir
 ```
+In this command, there is no need to download gradle artifacts because it's using the cached files downloaded by the 'gradlew build' command.
 
-To run the application using cache dir, simply execute:
+To run the application using default cache dir, simply execute:
 
 ```
-wercker dev --pipeline NoCacheDir
+wercker dev --pipeline DefaultCacheDir
 ```
+In this command, downloading is required because the default cache dir, which is the .gradle from the user's home directory, is empty.
+
+Check the command execution time from the output of the steps running 'gradlew bootRun' on both pipelines. 
 
 ---
 Sign up for wercker: http://www.wercker.com
