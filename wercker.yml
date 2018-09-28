@@ -13,9 +13,18 @@ dev:
     #    reload: true
 
     - script:
+        name: shows contents of  wercker cache dir
+        code: |
+          echo $WERCKER_CACHE_DIR
+          find $WERCKER_CACHE_DIR -name \*.\*
+
+    - script:
       name: gradle bootRun
       code: |
-        ./gradlew --project-cache-dir=$WERCKER_CACHE_DIR bootRun
+        export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded
+        ./gradlew --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun
+        echo $WERCKER_CACHE_DIR
+        find $WERCKER_CACHE_DIR -name \*.\*
 
     ### REPLACE the above script step with this internal/watch step to enable 
     ### dynamic rebuilding/reloading of the container in response to file changes.
@@ -29,8 +38,17 @@ dev:
 build:
   # The steps that will be executed on build
   steps:
+    - script:
+        name: shows contents of  wercker cache dir
+        code: |
+          echo $WERCKER_CACHE_DIR
+          find $WERCKER_CACHE_DIR -name \*.\*
     # A step that executes `gradle build` command
     - script:
         name: gradle build
         code: |
-          ./gradlew --full-stacktrace -q --project-cache-dir=$WERCKER_CACHE_DIR build
+          export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded
+          ./gradlew --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project build
+          echo $WERCKER_CACHE_DIR
+          find $WERCKER_CACHE_DIR -name \*.\*
+          
