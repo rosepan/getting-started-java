@@ -28,12 +28,10 @@ build:
 CacheDir:
   steps:
     - script:
-      name: gradlew bootRun
+      name: gradlew bootRun with cache dir
       code: |
-        trap "exit" INT TERM ERR
-        trap "kill 0" EXIT
-        echo $WERCKER_CACHE_DIR
-        find $WERCKER_CACHE_DIR -name \*.\*
+        #echo $WERCKER_CACHE_DIR
+        #find $WERCKER_CACHE_DIR -name \*.\*
         echo "export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded"
         export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded
 
@@ -56,26 +54,15 @@ CacheDir:
             break
           fi
         done
-        #./gradlew --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun &
-
-    ### REPLACE the above script step with this internal/watch step to enable 
-    ### dynamic rebuilding/reloading of the container in response to file changes.
-    #
-    # - internal/watch:
-    #     code: |
-    #       ./gradlew bootRun
-    #     reload: true
 
 # defining the NoCacheDir pipeline
 NoCacheDir:
   steps:
     - script:
-      name: gradlew bootRun
+      name: gradlew bootRun without cache dir
       code: |
-        trap "exit" INT TERM ERR
-        trap "kill 0" EXIT
-        echo $WERCKER_CACHE_DIR
-        find $WERCKER_CACHE_DIR -name \*.\*
+        #echo $WERCKER_CACHE_DIR
+        #find $WERCKER_CACHE_DIR -name \*.\*
 
         echo "Running 'gradlw bootRun' without cache dir, kill the process when seeing the matching string from the process output"
         command="./gradlew bootRun"
@@ -98,14 +85,4 @@ NoCacheDir:
             break
           fi
         done
-        #./gradlew --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun &
 
-    ### REPLACE the above script step with this internal/watch step to enable 
-    ### dynamic rebuilding/reloading of the container in response to file changes.
-    #
-    # - internal/watch:
-    #     code: |
-    #       ./gradlew bootRun
-    #     reload: true
-
-          
