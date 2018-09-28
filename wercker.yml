@@ -13,16 +13,13 @@ dev:
     #    reload: true
 
     - script:
-        name: shows contents of  wercker cache dir
-        code: |
-          echo $WERCKER_CACHE_DIR
-          find $WERCKER_CACHE_DIR -name \*.\*
-
-    - script:
-      name: gradle bootRun
+      name: gradlew bootRun
       code: |
+        echo $WERCKER_CACHE_DIR
+        find $WERCKER_CACHE_DIR -name \*.\*
+        echo "export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded"
         export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded
-        ./gradlew --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun
+        ./gradlew --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun
         echo $WERCKER_CACHE_DIR
         find $WERCKER_CACHE_DIR -name \*.\*
 
@@ -47,6 +44,7 @@ build:
     - script:
         name: gradle build
         code: |
+          echo "export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded"
           export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded
           ./gradlew --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project build
           echo $WERCKER_CACHE_DIR
