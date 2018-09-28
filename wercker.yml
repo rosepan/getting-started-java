@@ -7,15 +7,15 @@ box:
 # defining the dev pipeline
 dev:
   steps:
-    - internal/watch:
-        code: |
-          ./gradlew --project-cache-dir=$WERCKER_CACHE_DIR bootRun
-        reload: true
+    #- internal/watch:
+    #    code: |
+    #      ./gradlew --project-cache-dir=$WERCKER_CACHE_DIR bootRun
+    #    reload: true
 
-    #- script:
-    #  name: gradle bootRun
-    #  code: |
-    #    ./gradlew bootRun
+    - script:
+      name: gradle bootRun
+      code: |
+        ./gradlew --project-cache-dir=$WERCKER_CACHE_DIR bootRun
 
     ### REPLACE the above script step with this internal/watch step to enable 
     ### dynamic rebuilding/reloading of the container in response to file changes.
