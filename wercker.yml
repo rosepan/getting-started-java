@@ -4,24 +4,59 @@ box:
   ports:
     - "8080"
 
-# defining the dev pipeline
-dev:
+# Build definition
+build:
+  # The steps that will be executed on build
   steps:
-    #- internal/watch:
-    #    code: |
-    #      ./gradlew --project-cache-dir=$WERCKER_CACHE_DIR bootRun
-    #    reload: true
+    - script:
+        name: clean up wercker cache dir
+        code: |
+          echo $WERCKER_CACHE_DIR
+          rm -rf $WERCKER_CACHE_DIR/*
+          #mkdir $WERCKER_CACHE_DIR
+    # A step that executes `gradle build` command
+    - script:
+        name: gradle build
+        code: |
+          echo $WERCKER_CACHE_DIR
+          find $WERCKER_CACHE_DIR -name \*.\*
+          echo "export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded"
+          export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded
+          ./gradlew --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project build
 
+# defining the CacheDir pipeline
+CacheDir:
+  steps:
     - script:
       name: gradlew bootRun
       code: |
+        trap "exit" INT TERM ERR
+        trap "kill 0" EXIT
         echo $WERCKER_CACHE_DIR
         find $WERCKER_CACHE_DIR -name \*.\*
         echo "export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded"
         export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded
-        ./gradlew --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun
-        echo $WERCKER_CACHE_DIR
-        find $WERCKER_CACHE_DIR -name \*.\*
+
+        echo "Running 'gradlw bootRun' using wercker cache dir, kill the process when seeing the matching string from the process output"
+        command="./gradlew --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun"
+        log="prog.log"
+        match="restartedMain] demo.Hello                               : Started Hello in"
+        echo $command
+        
+        $command > "$log" 2>&1 &
+        pid=$!
+        
+        while true
+        do
+          if fgrep --quiet "$match" "$log"
+          then
+            kill $pid
+            echo "found the output string '$match'"
+            echo "process $pid is killed"
+            break
+          fi
+        done
+        #./gradlew --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun &
 
     ### REPLACE the above script step with this internal/watch step to enable 
     ### dynamic rebuilding/reloading of the container in response to file changes.
@@ -31,22 +66,46 @@ dev:
     #       ./gradlew bootRun
     #     reload: true
 
-# Build definition
-build:
-  # The steps that will be executed on build
+# defining the NoCacheDir pipeline
+NoCacheDir:
   steps:
     - script:
-        name: shows contents of  wercker cache dir
-        code: |
-          echo $WERCKER_CACHE_DIR
-          find $WERCKER_CACHE_DIR -name \*.\*
-    # A step that executes `gradle build` command
-    - script:
-        name: gradle build
-        code: |
-          echo "export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded"
-          export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded
-          ./gradlew --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project build
-          echo $WERCKER_CACHE_DIR
-          find $WERCKER_CACHE_DIR -name \*.\*
+      name: gradlew bootRun
+      code: |
+        trap "exit" INT TERM ERR
+        trap "kill 0" EXIT
+        echo $WERCKER_CACHE_DIR
+        find $WERCKER_CACHE_DIR -name \*.\*
+
+        echo "Running 'gradlw bootRun' without cache dir, kill the process when seeing the matching string from the process output"
+        command="./gradlew bootRun"
+
+        echo $command
+
+        log="prog.log"
+        match="restartedMain] demo.Hello                               : Started Hello in"
+        
+        $command > "$log" 2>&1 &
+        pid=$!
+        
+        while true
+        do
+          if fgrep --quiet "$match" "$log"
+          then
+            kill $pid
+            echo "found the output string '$match'"
+            echo "process $pid is killed"
+            break
+          fi
+        done
+        #./gradlew --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun &
+
+    ### REPLACE the above script step with this internal/watch step to enable 
+    ### dynamic rebuilding/reloading of the container in response to file changes.
+    #
+    # - internal/watch:
+    #     code: |
+    #       ./gradlew bootRun
+    #     reload: true
+
           
