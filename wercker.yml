@@ -27,8 +27,6 @@ build:
         code: |
           echo $WERCKER_CACHE_DIR
           find $WERCKER_CACHE_DIR -name \*.\*
-          echo "export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded"
-          export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded
           ./gradlew --build-cache --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project build
 
 # defining the WerckerCacheDir pipeline
@@ -39,10 +37,8 @@ WerckerCacheDir:
       code: |
         start_time=`date +%s`
 
-        echo "export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded"
-        export GRADLE_USER_HOME=$WERCKER_CACHE_DIR/downloaded
-
-        echo "Run 'gradlew bootRun' using wercker cache dir. Kill the process when seeing the matching string from the process output. Print out the command execution time."
+        echo "Run 'gradlew bootRun' using wercker cache dir. Kill the process when seeing the matching string from the process output. 
+        echo "Print out the command execution time."
 
         command="./gradlew --build-cache --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun"
         log="prog.log"
@@ -73,7 +69,8 @@ DefaultCacheDir:
       code: |
         start_time=`date +%s`
 
-        echo "Run 'gradlew bootRun' with default cache dir. Kill the process when seeing the matching string from the process output. Print out the command execution time."
+        echo "Run 'gradlew bootRun' with default cache dir. Kill the process when seeing the matching string from the process output. 
+        echo "Print out the command execution time."
 
         export GRADLE_USER_HOME=
         command="./gradlew --full-stacktrace bootRun"
