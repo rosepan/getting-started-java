@@ -37,7 +37,7 @@ WerckerCacheDir:
       code: |
         start_time=`date +%s`
 
-        echo "Run 'gradlew bootRun' using wercker cache dir. Kill the process when seeing the matching string from the process output. 
+        echo "Run 'gradlew bootRun' using wercker cache dir. Kill the process when seeing the matching string from the process output."
         echo "Print out the command execution time."
 
         command="./gradlew --build-cache --full-stacktrace --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun"
@@ -69,7 +69,7 @@ DefaultCacheDir:
       code: |
         start_time=`date +%s`
 
-        echo "Run 'gradlew bootRun' with default cache dir. Kill the process when seeing the matching string from the process output. 
+        echo "Run 'gradlew bootRun' with default cache dir. Kill the process when seeing the matching string from the process output."
         echo "Print out the command execution time."
 
         export GRADLE_USER_HOME=
