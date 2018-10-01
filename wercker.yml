@@ -45,7 +45,7 @@ WerckerCacheDir:
         echo "Run 'gradlew bootRun' using wercker cache dir. Kill the process when seeing the matching string from the process output."
         echo "Print out the command execution time."
 
-        command="./gradlew -d --build-cache --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun"
+        command="./gradlew --build-cache --project-cache-dir=$WERCKER_CACHE_DIR/project bootRun"
         log="prog.log"
         match="restartedMain] demo.Hello                               : Started Hello in"
         echo $command
@@ -78,7 +78,7 @@ DefaultCacheDir:
         echo "Print out the command execution time."
 
         export GRADLE_USER_HOME=
-        command="./gradlew -d bootRun"
+        command="./gradlew bootRun"
 
         echo $command
 
